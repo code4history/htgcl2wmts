@@ -3,7 +3,7 @@
           <head>
             <meta charset="utf-8">
             <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
-            <title>naramachi_yasui_bunko_modified.tif</title>
+            <title>保井文庫奈良町絵図 GDAL vs HTGCL</title>
 
             <!-- Leaflet -->
             <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
@@ -46,11 +46,8 @@
         //  .. CartoDB Positron
         var cartodb = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://cartodb.com/attributions">CartoDB</a>', minZoom: 13, maxZoom: 19});
 
-        //  .. OSM Toner
-        var toner = L.tileLayer('https://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {attribution: 'Map tiles by <a href="https://stamen.com">Stamen Design</a>, under <a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="https://openstreetmap.org">OpenStreetMap</a>, under <a href="https://www.openstreetmap.org/copyright">ODbL</a>.', minZoom: 13, maxZoom: 19});
-
-        //  .. White background
-        var white = L.tileLayer("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==", {minZoom: 13, maxZoom: 19});
+        //  .. 地理院地図
+        var gsi = L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {attribution: 'Map tiles by <a href="https://maps.gsi.go.jp/">地理院地図</a>.', minZoom: 13, maxZoom: 18});
 
         // Overlay layers (GDAL)
         var lyr = L.tileLayer('./gdal/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: "", minZoom: 13, maxZoom: 19});
@@ -67,7 +64,7 @@
             layers: [osm]
         });
 
-        var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "Stamen Toner": toner, "Without background": white};
+        var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "地理院地図": gsi};
         var overlaymaps = {"GDAL (既存技術)": lyr, "HTGCL (新技術)": lyr2};
 
         // Title
