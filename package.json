@@ -1,0 +1,22 @@
+{
+  "name": "htgcl2wmts",
+  "version": "1.0.0",
+  "description": "htgcl2wmts convert HTGCL(Historic topological ground control line) map data to WMTS(Web Map Tile Service).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "GIS",
+    "Maplat",
+    "Historical",
+    "Map"
+  ],
+  "author": "Kohei Otsuka",
+  "license": "MIT",
+  "dependencies": {
+    "@maplat/tin": "github:code4history/MaplatTin#tinSearchGrid",
+    "canvas": "^2.6.1",
+    "fs-extra": "^9.0.1"
+  }
+}
