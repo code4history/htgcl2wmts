@@ -38,10 +38,22 @@ async function work() {
     const deltaZoom = Math.ceil(Math.log2(minSide / 256));
     const minZoom = maxZoom - deltaZoom;
 
-    const pixelXw = (Math.min(lt[0], rt[0], lb[0], rb[0]) + MAX_MERC) / (2 * MAX_MERC) * 256 * Math.pow(2, maxZoom);
-    const pixelXe = (Math.max(lt[0], rt[0], lb[0], rb[0]) + MAX_MERC) / (2 * MAX_MERC) * 256 * Math.pow(2, maxZoom);
-    const pixelYn = (MAX_MERC - Math.max(lt[1], rt[1], lb[1], rb[1])) / (2 * MAX_MERC) * 256 * Math.pow(2, maxZoom);
-    const pixelYs = (MAX_MERC - Math.min(lt[1], rt[1], lb[1], rb[1])) / (2 * MAX_MERC) * 256 * Math.pow(2, maxZoom);
+    const edgeValues = [lt, lb, rt, rb];
+    for (let px = 1; px < width; px++) {
+        edgeValues.push(tin.transform([px, 0], false, true));
+        edgeValues.push(tin.transform([px, height], false, true));
+    }
+    for (let py = 1; py < height; py++) {
+        edgeValues.push(tin.transform([0, py], false, true));
+        edgeValues.push(tin.transform([width, py], false, true));
+    }
+    const txs = edgeValues.map((item) => item[0]);
+    const tys = edgeValues.map((item) => item[1]);
+
+    const pixelXw = (Math.min(...txs) + MAX_MERC) / (2 * MAX_MERC) * 256 * Math.pow(2, maxZoom);
+    const pixelXe = (Math.max(...txs) + MAX_MERC) / (2 * MAX_MERC) * 256 * Math.pow(2, maxZoom);
+    const pixelYn = (MAX_MERC - Math.max(...tys)) / (2 * MAX_MERC) * 256 * Math.pow(2, maxZoom);
+    const pixelYs = (MAX_MERC - Math.min(...tys)) / (2 * MAX_MERC) * 256 * Math.pow(2, maxZoom);
 
     const tileXw = Math.floor(pixelXw / 256);
     const tileXe = Math.floor(pixelXe / 256);
