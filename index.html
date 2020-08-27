@@ -1,107 +1,105 @@
 <!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <meta charset="utf-8">
-            <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
-            <title>保井文庫奈良町絵図 GDAL vs HTGCL</title>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+    <title>保井文庫奈良町絵図 GDAL vs HTGCL</title>
 
-            <!-- Leaflet -->
-            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
-            <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
 
-            <style>
-                body { margin:0; padding:0; }
-                body, table, tr, td, th, div, h1, h2, input { font-family: "Calibri", "Trebuchet MS", "Ubuntu", Serif; font-size: 11pt; }
-                #map { position:absolute; top:0; bottom:0; width:100%; } /* full size */
-                .ctl {
-                    padding: 2px 10px 2px 10px;
-                    background: white;
-                    background: rgba(255,255,255,0.9);
-                    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-                    border-radius: 5px;
-                    text-align: right;
-                }
-                .title {
-                    font-size: 18pt;
-                    font-weight: bold;
-                }
-                .src {
-                    font-size: 10pt;
-                }
+    <style>
+        body { margin:0; padding:0; }
+        body, table, tr, td, th, div, h1, h2, input { font-family: "Calibri", "Trebuchet MS", "Ubuntu", Serif; font-size: 11pt; }
+        #map { position:absolute; top:0; bottom:0; width:100%; } /* full size */
+        .ctl {
+            padding: 2px 10px 2px 10px;
+            background: white;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            text-align: right;
+        }
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+        }
+        .src {
+            font-size: 10pt;
+        }
+    </style>
 
-            </style>
+</head>
+<body>
 
-        </head>
-        <body>
+<div id="map"></div>
 
-        <div id="map"></div>
+<script>
+/* **** Leaflet **** */
 
-        <script>
-        /* **** Leaflet **** */
+// Base layers
+//  .. OpenStreetMap
+var osm = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors', minZoom: 13, maxZoom: 19});
 
-        // Base layers
-        //  .. OpenStreetMap
-        var osm = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors', minZoom: 13, maxZoom: 19});
+//  .. CartoDB Positron
+var cartodb = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://cartodb.com/attributions">CartoDB</a>', minZoom: 13, maxZoom: 19});
 
-        //  .. CartoDB Positron
-        var cartodb = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://cartodb.com/attributions">CartoDB</a>', minZoom: 13, maxZoom: 19});
+//  .. 地理院地図
+var gsi = L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {attribution: 'Map tiles by <a href="https://maps.gsi.go.jp/">地理院地図</a>.', minZoom: 13, maxZoom: 18});
 
-        //  .. 地理院地図
-        var gsi = L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {attribution: 'Map tiles by <a href="https://maps.gsi.go.jp/">地理院地図</a>.', minZoom: 13, maxZoom: 18});
+// Overlay layers (GDAL)
+var lyr = L.tileLayer('./gdal/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: "", minZoom: 13, maxZoom: 19});
 
-        // Overlay layers (GDAL)
-        var lyr = L.tileLayer('./gdal/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: "", minZoom: 13, maxZoom: 19});
+// Overlay layers (HTGCL)
+var lyr2 = L.tileLayer('./htgcl/{z}/{x}/{y}.png', {tms: false, opacity: 0.7, attribution: "", minZoom: 13, maxZoom: 19});
 
-        // Overlay layers (HTGCL)
-        var lyr2 = L.tileLayer('./htgcl/{z}/{x}/{y}.png', {tms: false, opacity: 0.7, attribution: "", minZoom: 13, maxZoom: 19});
+// Map
+var map = L.map('map', {
+    center: [34.68625327599612, 135.8401662977258],
+    zoom: 19,
+    minZoom: 13,
+    maxZoom: 19,
+    layers: [osm]
+});
 
-        // Map
-        var map = L.map('map', {
-            center: [34.68625327599612, 135.8401662977258],
-            zoom: 19,
-            minZoom: 13,
-            maxZoom: 19,
-            layers: [osm]
-        });
+var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "地理院地図": gsi};
+var overlaymaps = {"GDAL (既存技術)": lyr, "HTGCL (新技術)": lyr2};
 
-        var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "地理院地図": gsi};
-        var overlaymaps = {"GDAL (既存技術)": lyr, "HTGCL (新技術)": lyr2};
+// Title
+var title = L.control();
+title.onAdd = function(map) {
+    this._div = L.DomUtil.create('div', 'ctl title');
+    this.update();
+    return this._div;
+};
+title.update = function(props) {
+    this._div.innerHTML = "保井文庫奈良町絵図 GDAL vs HTGCL";
+};
+title.addTo(map);
 
-        // Title
-        var title = L.control();
-        title.onAdd = function(map) {
-            this._div = L.DomUtil.create('div', 'ctl title');
-            this.update();
-            return this._div;
-        };
-        title.update = function(props) {
-            this._div.innerHTML = "保井文庫奈良町絵図 GDAL vs HTGCL";
-        };
-        title.addTo(map);
-
-        // Note
-        var src = 'Generated by <a href="https://www.klokan.cz/projects/gdal2tiles/">GDAL2Tiles</a>, Copyright &copy; 2008 <a href="https://www.klokan.cz/">Klokan Petr Pridal</a>,  <a href="https://www.gdal.org/">GDAL</a> &amp; <a href="https://www.osgeo.org/">OSGeo</a> <a href="https://code.google.com/soc/">GSoC</a>';
-        var title = L.control({position: 'bottomleft'});
-        title.onAdd = function(map) {
-            this._div = L.DomUtil.create('div', 'ctl src');
-            this.update();
-            return this._div;
-        };
-        title.update = function(props) {
-            this._div.innerHTML = src;
-        };
-        title.addTo(map);
+// Note
+var src = 'Generated by <a href="https://www.klokan.cz/projects/gdal2tiles/">GDAL2Tiles</a>, Copyright &copy; 2008 <a href="https://www.klokan.cz/">Klokan Petr Pridal</a>,  <a href="https://www.gdal.org/">GDAL</a> &amp; <a href="https://www.osgeo.org/">OSGeo</a> <a href="https://code.google.com/soc/">GSoC</a>';
+var title = L.control({position: 'bottomleft'});
+title.onAdd = function(map) {
+    this._div = L.DomUtil.create('div', 'ctl src');
+    this.update();
+    return this._div;
+};
+title.update = function(props) {
+    this._div.innerHTML = src;
+};
+title.addTo(map);
 
 
-        // Add base layers
-        L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
+// Add base layers
+L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
 
-        // Fit to overlay bounds (SW and NE points with (lat, lon))
-        map.fitBounds([[34.66613490218506, 135.8640223739336], [34.706371649807195, 135.816310221518]]);
+// Fit to overlay bounds (SW and NE points with (lat, lon))
+map.fitBounds([[34.66613490218506, 135.8640223739336], [34.706371649807195, 135.816310221518]]);
 
-        </script>
+</script>
 
-        </body>
-        </html>
+</body>
+</html>
 
-        
